@@ -734,7 +734,7 @@ async function handleSubmit() {
   };
 
   // Intenta enviar a Google Sheets (no-cors → no es pot llegir la resposta)
-  if (SCRIPT_URL !== 'AQUI_LA_TEVA_URL_DE_GOOGLE_APPS_SCRIPT') {
+  if (SCRIPT_URL !== 'https://script.google.com/a/macros/learnlife.com/s/AKfycbwJhuhWRy2-TL6Qtcy8xdM-9pMBovD9oRIYnn8dt_FNY-aNbTFhQMi9uYXrwLqYHjy1/exec') {
     try {
       await fetch(SCRIPT_URL, {
         method: 'POST',
