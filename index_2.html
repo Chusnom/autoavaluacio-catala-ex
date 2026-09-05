@@ -734,7 +734,7 @@ async function handleSubmit() {
   };
 
   // Intenta enviar a Google Sheets (no-cors → no es pot llegir la resposta)
-  if (SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbyzzsJaYDL21lRAj22BI8mOzP5ACPn8jgs4dkTaTYMn0L1Bvjoeab63-ZSqwqoFCxbC3g/exec') {
+  if (SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbzW5lJz3VJdaHcsO0GDFnBVNJ8kmk9TDpmyyZmCIHCrjm8zbbu4xFYl_pV_O6U2bLgH0A/exec') {
     try {
       await fetch(SCRIPT_URL, {
         method: 'POST',
