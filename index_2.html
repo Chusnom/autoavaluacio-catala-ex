@@ -1,0 +1,794 @@
+<title>Autoavaluació — Sessió 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║  CONFIGURACIÓ GOOGLE SHEETS                                       ║
+║  1. Crea un full de càlcul a Google Sheets                        ║
+║  2. Extensions → Apps Script → enganxa el codi de sota           ║
+║  3. Desplega com a aplicació web:                                 ║
+║       Executar com: Jo                                            ║
+║       Qui hi té accés: Tothom                                     ║
+║  4. Copia l'URL de desplegament i substitueix SCRIPT_URL          ║
+╠══════════════════════════════════════════════════════════════════╣
+║  CODI APPS SCRIPT (pega-ho a l'editor):                          ║
+║                                                                   ║
+║  function doPost(e) {                                             ║
+║    try {                                                          ║
+║      var sheet = SpreadsheetApp                                   ║
+║        .getActiveSpreadsheet().getActiveSheet();                  ║
+║      var d = JSON.parse(e.postData.contents);                     ║
+║      // Capçaleres (executa doSetup() un cop per crear-les)       ║
+║      sheet.appendRow([                                            ║
+║        new Date(),                                                ║
+║        d.nom || '—',                                              ║
+║        d.gramatica, d.ortografia, d.usllen,                       ║
+║        d.cooral, d.coescrita, d.exoral,                           ║
+║        d.objectiu                                                 ║
+║      ]);                                                          ║
+║      return ContentService                                        ║
+║        .createTextOutput(JSON.stringify({status:'ok'}))           ║
+║        .setMimeType(ContentService.MimeType.JSON);                ║
+║    } catch(err) {                                                 ║
+║      return ContentService                                        ║
+║        .createTextOutput(JSON.stringify({status:'error',          ║
+║          message: err.toString()}))                               ║
+║        .setMimeType(ContentService.MimeType.JSON);                ║
+║    }                                                              ║
+║  }                                                                ║
+║                                                                   ║
+║  function doSetup() {                                             ║
+║    var sheet = SpreadsheetApp                                     ║
+║      .getActiveSpreadsheet().getActiveSheet();                    ║
+║    sheet.appendRow(['Data','Nom','Gramàtica','Ortografia',        ║
+║      'Ús de la llengua','Comprensió oral',                        ║
+║      'Comprensió escrita','Expressió oral',                       ║
+║      'Àrea a treballar']);                                        ║
+║  }                                                                ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:        #F6F4EE;
+  --surface:   #FDFCF8;
+  --surface-2: #EFEDE5;
+  --border:    #D9D5C8;
+  --text:      #141210;
+  --text-2:    #5C5749;
+  --text-3:    #8C8880;
+  --navy:      #0D1F52;
+  --gold:      #C4830A;
+  --gold-pale: #FDF3DC;
+  --l1:        #9B1C1C; --l1-bg: #FEF2F2;
+  --l2:        #92400E; --l2-bg: #FFFBEB;
+  --l3:        #14532D; --l3-bg: #F0FDF4;
+  --l4:        #4C1D95; --l4-bg: #F5F3FF;
+  --shadow:    0 2px 12px rgba(13,31,82,.08);
+  --r:         10px;
+  --font-d:    'Cormorant Garamond', Georgia, serif;
+  --font-ui:   'Plus Jakarta Sans', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0C111E; --surface:#131929; --surface-2:#1C2438;
+    --border:#2C3550; --text:#EAE8E2; --text-2:#9DA3B5;
+    --text-3:#636B82; --navy:#A8B8E8; --gold:#E6A020;
+    --gold-pale:#251E0A; --l1:#FCA5A5; --l1-bg:#2D0E0E;
+    --l2:#FCD34D; --l2-bg:#211500; --l3:#86EFAC; --l3-bg:#052012;
+    --l4:#C4B5FD; --l4-bg:#1A0D35; --shadow:0 2px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0C111E; --surface:#131929; --surface-2:#1C2438;
+  --border:#2C3550; --text:#EAE8E2; --text-2:#9DA3B5;
+  --text-3:#636B82; --navy:#A8B8E8; --gold:#E6A020;
+  --gold-pale:#251E0A; --l1:#FCA5A5; --l1-bg:#2D0E0E;
+  --l2:#FCD34D; --l2-bg:#211500; --l3:#86EFAC; --l3-bg:#052012;
+  --l4:#C4B5FD; --l4-bg:#1A0D35; --shadow:0 2px 16px rgba(0,0,0,.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-attachment: fixed;
+}
+
+/* ── STICKY HEADER ── */
+.sticky-head {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: var(--shadow);
+}
+.site-name {
+  font-family: var(--font-d); font-size: 17px;
+  color: var(--navy); font-weight: 600; white-space: nowrap;
+}
+.prog-outer {
+  flex: 1; height: 5px; background: var(--surface-2);
+  border-radius: 10px; overflow: hidden;
+}
+.prog-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #E6A020);
+  border-radius: 10px; width: 0%;
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.prog-count {
+  font-size: 12px; font-weight: 600; color: var(--text-3);
+  white-space: nowrap; letter-spacing: .03em; text-transform: uppercase;
+}
+
+/* ── SETUP BANNER ── */
+.setup-banner {
+  background: var(--gold-pale);
+  border-bottom: 2px solid var(--gold);
+  padding: 12px 24px;
+  text-align: center;
+  font-size: 13px; color: var(--text-2);
+}
+.setup-banner strong { color: var(--gold); }
+
+/* ── LAYOUT ── */
+.page-wrap { max-width: 700px; margin: 0 auto; padding: 36px 20px 80px; }
+
+/* ── HERO ── */
+.hero {
+  text-align: center; padding: 44px 20px 36px;
+  max-width: 580px; margin: 0 auto 8px;
+}
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+}
+.hero h1 {
+  font-family: var(--font-d); font-size: clamp(30px,6vw,50px);
+  font-weight: 600; color: var(--navy); line-height: 1.15;
+  text-wrap: balance; margin-bottom: 14px;
+}
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero p { font-size: 14.5px; color: var(--text-2); line-height: 1.7; }
+
+/* ── NOM FIELD ── */
+.nom-field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.nom-field label {
+  display: block; font-size: 12px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 8px;
+}
+.nom-field input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 7px;
+  padding: 10px 14px; font-size: 15px; font-family: var(--font-ui);
+  background: var(--surface-2); color: var(--text);
+  transition: border-color .18s;
+  outline: none;
+}
+.nom-field input::placeholder { color: var(--text-3); }
+.nom-field input:focus { border-color: var(--gold); background: var(--surface); }
+.nom-field input.error { border-color: var(--l1); background: var(--l1-bg); }
+.nom-error { font-size: 12px; color: var(--l1); margin-top: 6px; display: none; font-weight: 600; }
+
+/* ── AREA SECTION ── */
+.area-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.area-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.area-icon {
+  width: 42px; height: 42px; border-radius: 9px;
+  background: var(--gold-pale); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0; margin-top: 2px;
+}
+.area-title h2 {
+  font-family: var(--font-d); font-size: 21px;
+  font-weight: 600; color: var(--navy); margin-bottom: 3px;
+}
+.area-def {
+  font-size: 13px; color: var(--text-3); line-height: 1.55;
+}
+.q-label {
+  padding: 14px 24px 10px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-3);
+}
+
+/* ── RADIO OPTIONS ── */
+.radio-opts { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.radio-opt { position: relative; }
+.radio-opt input[type="radio"] {
+  position: absolute; opacity: 0; width: 0; height: 0;
+}
+.radio-opt label {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .16s;
+  background: var(--surface-2);
+  user-select: none;
+}
+.radio-opt label:hover { border-color: var(--text-3); background: var(--surface); }
+.radio-opt input:focus-visible + label {
+  outline: 2px solid var(--gold); outline-offset: 2px;
+}
+
+/* Level indicator dot */
+.opt-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 4px;
+}
+.opt-body { flex: 1; min-width: 0; }
+.opt-name {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 3px;
+}
+.opt-stmt {
+  font-size: 13.5px; color: var(--text-2); line-height: 1.5;
+}
+.opt-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  font-size: 10px; color: transparent;
+  transition: all .16s;
+}
+
+/* Selected states */
+.radio-opt input:checked + label.l1 {
+  background: var(--l1-bg); border-color: var(--l1); border-left-width: 4px;
+}
+.radio-opt input:checked + label.l1 .opt-name { color: var(--l1); }
+.radio-opt input:checked + label.l1 .opt-check {
+  background: var(--l1); border-color: var(--l1); color: #fff;
+}
+.radio-opt input:checked + label.l2 {
+  background: var(--l2-bg); border-color: var(--l2); border-left-width: 4px;
+}
+.radio-opt input:checked + label.l2 .opt-name { color: var(--l2); }
+.radio-opt input:checked + label.l2 .opt-check {
+  background: var(--l2); border-color: var(--l2); color: #fff;
+}
+.radio-opt input:checked + label.l3 {
+  background: var(--l3-bg); border-color: var(--l3); border-left-width: 4px;
+}
+.radio-opt input:checked + label.l3 .opt-name { color: var(--l3); }
+.radio-opt input:checked + label.l3 .opt-check {
+  background: var(--l3); border-color: var(--l3); color: #fff;
+}
+.radio-opt input:checked + label.l4 {
+  background: var(--l4-bg); border-color: var(--l4); border-left-width: 4px;
+}
+.radio-opt input:checked + label.l4 .opt-name { color: var(--l4); }
+.radio-opt input:checked + label.l4 .opt-check {
+  background: var(--l4); border-color: var(--l4); color: #fff;
+}
+/* Dot colors */
+.d1 { background: var(--l1); }
+.d2 { background: var(--l2); }
+.d3 { background: var(--l3); }
+.d4 { background: var(--l4); }
+
+/* ── OBJECTIU SECTION ── */
+.objectiu-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.obj-header {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--gold-pale);
+}
+.obj-header h2 {
+  font-family: var(--font-d); font-size: 21px;
+  font-weight: 600; color: var(--navy); margin-bottom: 4px;
+}
+.obj-header p { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+.obj-opts {
+  padding: 16px 16px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.obj-opt { position: relative; }
+.obj-opt input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.obj-opt label {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--surface-2);
+  transition: all .16s;
+  font-size: 14px; color: var(--text);
+}
+.obj-opt label:hover:not(.disabled) { border-color: var(--gold); background: var(--surface); }
+.obj-opt label.disabled { opacity: .45; cursor: not-allowed; }
+.obj-opt input:checked + label {
+  background: var(--gold-pale);
+  border-color: var(--gold); border-left-width: 4px;
+  font-weight: 600; color: var(--navy);
+}
+.obj-opt input:checked + label.disabled { opacity: 1; }
+.obj-icon { font-size: 17px; flex-shrink: 0; }
+.obj-check {
+  margin-left: auto; width: 18px; height: 18px; border-radius: 4px;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 10px; color: transparent;
+  transition: all .16s;
+}
+.obj-opt input:checked + label .obj-check {
+  background: var(--gold); border-color: var(--gold); color: #fff;
+}
+.obj-counter {
+  font-size: 11.5px; color: var(--text-3); padding: 8px 16px 4px;
+  font-weight: 600; letter-spacing: .03em;
+}
+
+/* ── CTA ── */
+.cta-zone { text-align: center; padding: 4px 0 32px; }
+.btn-main {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--navy); color: #fff; border: none;
+  border-radius: 8px; padding: 15px 40px;
+  font-size: 16px; font-family: var(--font-ui); font-weight: 700;
+  cursor: pointer; letter-spacing: .01em;
+  transition: background .18s, transform .12s;
+  box-shadow: 0 4px 16px rgba(13,31,82,.25);
+}
+.btn-main:hover:not(:disabled) { background: #0a1840; }
+.btn-main:active:not(:disabled) { transform: scale(.98); }
+.btn-main:disabled {
+  background: var(--surface-2); color: var(--text-3);
+  cursor: not-allowed; box-shadow: none;
+}
+.cta-note { margin-top: 10px; font-size: 12px; color: var(--text-3); }
+.btn-ghost {
+  display: inline-block; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 10px 22px;
+  font-size: 13.5px; font-family: var(--font-ui); font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--text-2);
+  transition: all .18s;
+}
+.btn-ghost:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ── SUCCESS ── */
+#successPage { display: none; }
+.success-wrap {
+  text-align: center; padding: 60px 20px 80px;
+  max-width: 500px; margin: 0 auto;
+}
+.success-icon {
+  font-size: 56px; margin-bottom: 20px;
+}
+.success-wrap h2 {
+  font-family: var(--font-d); font-size: clamp(28px,5vw,42px);
+  font-weight: 600; color: var(--navy); margin-bottom: 12px;
+  text-wrap: balance;
+}
+.success-wrap p { font-size: 14.5px; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+.summary-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  text-align: left;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.summary-box h3 {
+  font-family: var(--font-d); font-size: 18px;
+  color: var(--navy); margin-bottom: 12px;
+}
+.summary-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row .sr-icon { font-size: 16px; flex-shrink: 0; }
+.summary-row .sr-name { flex: 1; color: var(--text-2); }
+.summary-row .sr-val { font-weight: 600; color: var(--navy); }
+.obj-tag {
+  display: inline-block; padding: 4px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 700;
+  background: var(--gold-pale); color: var(--gold);
+  border: 1px solid rgba(196,131,10,.3);
+  margin-bottom: 20px;
+}
+</style>
+
+<!-- SETUP BANNER (ocult si SCRIPT_URL configurat) -->
+<div class="setup-banner" id="setupBanner">
+  ⚠ <strong>Configuració pendent:</strong> substitueix <code>SCRIPT_URL</code> al codi per l'URL del teu Google Apps Script.
+  Les respostes <strong>no s'enviaran</strong> fins que estigui configurat. Consulta els comentaris a l'HTML.
+</div>
+
+<!-- STICKY HEADER -->
+<div class="sticky-head">
+  <span class="site-name">Sessió 1 · Autoavaluació</span>
+  <div class="prog-outer"><div class="prog-inner" id="progBar"></div></div>
+  <span class="prog-count" id="progCount">0 / 6</span>
+</div>
+
+<!-- FORMULARI -->
+<div class="page-wrap" id="formPage">
+  <div class="hero">
+    <p class="eyebrow">Català per Explorers &nbsp;·&nbsp; Sessió 1</p>
+    <h1>On ets i cap<br>on vols <em>créixer?</em></h1>
+    <p>Llegeix cada afirmació i marca la que millor descriu com ets en aquest moment. No hi ha respostes correctes ni incorrectes — és la teva mirada honesta sobre tu mateix o tu mateixa.</p>
+  </div>
+
+  <!-- NOM -->
+  <div class="nom-field">
+    <label for="nomInput">El teu nom <span style="color:var(--l1)">*</span></label>
+    <input type="text" id="nomInput" placeholder="Escriu el teu nom…" autocomplete="off">
+    <p class="nom-error" id="nomError">⚠ El nom és obligatori per enviar.</p>
+  </div>
+
+  <!-- ÀREES (generades per JS) -->
+  <div id="areasContainer"></div>
+
+  <!-- OBJECTIU -->
+  <div class="objectiu-section">
+    <div class="obj-header">
+      <h2>🎯 El meu objectiu per a aquest cicle</h2>
+      <p>Quin apartat (o apartats) vols treballar al llarg del cicle? Tria fins a <strong>3 opcions</strong>.</p>
+    </div>
+    <div class="obj-opts" id="objOpts"></div>
+  </div>
+
+  <div class="cta-zone">
+    <button class="btn-main" id="submitBtn" disabled onclick="handleSubmit()">
+      Enviar l'autoavaluació &nbsp;→
+    </button>
+    <p class="cta-note" id="ctaNote">Completa totes les àrees per continuar</p>
+  </div>
+</div>
+
+<!-- PÀGINA D'ÈXIT -->
+<div class="page-wrap" id="successPage">
+  <div class="success-wrap">
+    <div class="success-icon">🗺️</div>
+    <h2>Autoavaluació enviada!</h2>
+    <p>Gràcies per la teva reflexió. Ara ja saps on ets i cap on vols anar. El teu docent tindrà la teva resposta i podrà acompanyar-te millor al llarg del cicle.</p>
+
+    <div class="summary-box" id="summaryBox"></div>
+
+    <p style="font-size:13px;color:var(--text-3);margin-bottom:24px">
+      Fes una captura de pantalla si vols guardar el teu resum per tu.
+    </p>
+    <button class="btn-ghost" onclick="resetForm()">↩ Tornar a l'autoavaluació</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIGURACIÓ ──────────────────────────────────────────────────
+// Substitueix amb l'URL de desplegament del teu Google Apps Script.
+// Fins que estigui configurat, les respostes NO s'enviaran.
+const SCRIPT_URL = 'AQUI_LA_TEVA_URL_DE_GOOGLE_APPS_SCRIPT';
+
+// ── DADES ─────────────────────────────────────────────────────────
+const AREAS = [
+  {
+    id: 'gramatica', icon: '📝', name: 'Gramàtica',
+    def: 'Coneixement i ús de les estructures gramaticals del català: conjugació de verbs, concordances, preposicions i connectors.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Faig molts errors gramaticals. Necessito ajuda per construir frases correctes en català.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'Entenc les regles bàsiques però em costen les estructures complexes. Detecto errors quan me\'n fan adonar.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Escric i parlo amb gramàtica correcta de manera autònoma. Reviso el meu treball i m\'adapto a contextos diversos.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Domino les estructures gramaticals amb seguretat. Puc explicar les normes i ajudar els meus companys i companyes.' }
+    ]
+  },
+  {
+    id: 'ortografia', icon: '✏️', name: 'Ortografia',
+    def: 'Escriptura correcta de les paraules: accentuació, apòstrofació, dièresi i puntuació en català.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Faig moltes faltes ortogràfiques. Necessito ajuda externa per detectar errors d\'accents, apòstrofs o dièresis.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'Aplico algunes regles però tinc dubtes en accents i paraules menys freqüents. Milloro quan rebo orientació.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Reviso i corregisc els meus textos amb autonomia. Entrego treballs amb menys de cinc errors.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Escric sense faltes i puc ajudar els meus companys i companyes a revisar i corregir els seus textos.' }
+    ]
+  },
+  {
+    id: 'usllen', icon: '💬', name: 'Ús de la llengua',
+    def: 'Freqüència i naturalitat amb què fas servir el català en situacions comunicatives reals al centre i a classe.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Faig servir el català només quan és obligatori. De vegades canvio de llengua sense adonar-me\'n.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'Intento parlar en català en les activitats, però em costa mantenir-ho en conversacions espontànies.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Faig servir el català de manera natural en la majoria de situacions de classe i al centre.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Sempre faig servir el català i animo els meus companys i companyes a fer-ho. Soc un referent de llengua.' }
+    ]
+  },
+  {
+    id: 'cooral', icon: '👂', name: 'Comprensió oral',
+    def: 'Capacitat d\'entendre el català parlat en converses, instruccions, exposicions i debats.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Entenc algunes paraules aïllades. Necessito repeticions o traduccions per comprendre les instruccions.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'Entenc la idea principal d\'explicacions senzilles. Em costa quan la persona parla ràpid o utilitza vocabulari nou.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Escolto i entenc discursos orals de manera autònoma, inclosos alguns continguts implícits.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Comprenc perfectament el català oral, fins i tot temes complexos, i puc explicar-los als companys i companyes.' }
+    ]
+  },
+  {
+    id: 'coescrita', icon: '📖', name: 'Comprensió escrita',
+    def: 'Capacitat de llegir i interpretar textos escrits en català de diferent tipologia i complexitat.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Identifico informació bàsica en textos molt senzills. Necessito ajuda per comprendre la majoria de textos.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'Entenc la idea principal d\'un text senzill però em costa interpretar les parts més complexes o implícites.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Llegeixo i interpreto textos variats de manera autònoma, incloent-hi la informació implícita i el propòsit.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Analitzo textos en profunditat i amb criteri propi. Puc ajudar els companys i companyes a comprendre\'ls.' }
+    ]
+  },
+  {
+    id: 'exoral', icon: '🎤', name: 'Expressió oral',
+    def: 'Capacitat de comunicar-te oralment en català amb fluïdesa, claredat, correcció i adequació al context.',
+    levels: [
+      { cls:'l1', dot:'d1', name:'Estic creixent 🔴',
+        stmt:'Faig intervencions molt breus i necessito suport constant. Em costa estructurar les idees en veu alta.' },
+      { cls:'l2', dot:'d2', name:'En desenvolupament 🟠',
+        stmt:'M\'expresso en situacions pautades amb cert ordre. Milloro quan tinc guió o suport previ.' },
+      { cls:'l3', dot:'d3', name:'Ho aconsegueixo 🟢',
+        stmt:'Parlo amb fluïdesa i claredat de manera autònoma. Cuido el to, la postura i el llenguatge no verbal.' },
+      { cls:'l4', dot:'d4', name:'Excel·leixo ⭐',
+        stmt:'Parlo en públic amb molta seguretat i un estil propi. Soc un model i ajudo els companys i companyes a millorar.' }
+    ]
+  }
+];
+
+const OBJ_EXTRA = [
+  { id:'tots', icon:'⚖️', name:'Vull treballar tots els apartats de manera equilibrada' }
+];
+
+// ── ESTAT ─────────────────────────────────────────────────────────
+const sel = {}; // { areaId: levelIndex }
+let selObj = []; // array de ids, màx 3
+
+// ── SETUP BANNER ──────────────────────────────────────────────────
+if (SCRIPT_URL !== 'AQUI_LA_TEVA_URL_DE_GOOGLE_APPS_SCRIPT') {
+  document.getElementById('setupBanner').style.display = 'none';
+}
+
+// ── BUILD FORMULARI ───────────────────────────────────────────────
+function buildForm() {
+  const container = document.getElementById('areasContainer');
+  container.innerHTML = '';
+
+  AREAS.forEach(area => {
+    const optsHtml = area.levels.map((l, i) => `
+      <div class="radio-opt">
+        <input type="radio" name="${area.id}" id="${area.id}-${i}" value="${i}"
+          onchange="pickLevel('${area.id}', ${i})">
+        <label for="${area.id}-${i}" class="${l.cls}">
+          <span class="opt-dot ${l.dot}"></span>
+          <span class="opt-body">
+            <span class="opt-name">${l.name}</span>
+            <span class="opt-stmt">"${l.stmt}"</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </label>
+      </div>`).join('');
+
+    const section = document.createElement('div');
+    section.className = 'area-section';
+    section.innerHTML = `
+      <div class="area-header">
+        <div class="area-icon">${area.icon}</div>
+        <div class="area-title">
+          <h2>${area.name}</h2>
+          <p class="area-def">${area.def}</p>
+        </div>
+      </div>
+      <p class="q-label">On em trobo ara</p>
+      <div class="radio-opts">${optsHtml}</div>`;
+    container.appendChild(section);
+  });
+
+  // Objectiu options (checkboxes, màx 3)
+  const allOpts = [...AREAS, ...OBJ_EXTRA];
+  const objContainer = document.getElementById('objOpts');
+  objContainer.innerHTML =
+    `<p class="obj-counter" id="objCounter">0 de 3 seleccionades</p>` +
+    allOpts.map((item) => `
+    <div class="obj-opt" id="objopt-${item.id}">
+      <input type="checkbox" id="obj-${item.id}" value="${item.id}"
+        onchange="pickObj('${item.id}', this)">
+      <label for="obj-${item.id}">
+        <span class="obj-icon">${item.icon}</span>
+        ${item.name}
+        <span class="obj-check">✓</span>
+      </label>
+    </div>`).join('');
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────
+function pickLevel(areaId, idx) {
+  sel[areaId] = idx;
+  updateProgress();
+}
+
+function pickObj(id, checkbox) {
+  if (checkbox.checked) {
+    if (selObj.length >= 3) { checkbox.checked = false; return; }
+    selObj.push(id);
+  } else {
+    selObj = selObj.filter(v => v !== id);
+  }
+  // Actualitza l'estat visual dels no seleccionats
+  const allOpts = [...AREAS, ...OBJ_EXTRA];
+  const maxReached = selObj.length >= 3;
+  allOpts.forEach(item => {
+    const lbl = document.querySelector(`#obj-${item.id} + label`) ||
+                document.querySelector(`label[for="obj-${item.id}"]`);
+    const inp = document.getElementById(`obj-${item.id}`);
+    if (!lbl || !inp) return;
+    if (maxReached && !inp.checked) lbl.classList.add('disabled');
+    else lbl.classList.remove('disabled');
+  });
+  const counter = document.getElementById('objCounter');
+  if (counter) counter.textContent = `${selObj.length} de 3 seleccionades`;
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = AREAS.filter(a => sel[a.id] !== undefined).length;
+  document.getElementById('progBar').style.width = Math.round(done / AREAS.length * 100) + '%';
+  document.getElementById('progCount').textContent = `${done} / ${AREAS.length}`;
+  const allDone = done === AREAS.length && selObj.length > 0;
+  document.getElementById('submitBtn').disabled = !allDone;
+  document.getElementById('ctaNote').textContent = allDone
+    ? 'Preparat per enviar'
+    : done < AREAS.length
+      ? `Completa totes les àrees (falta${AREAS.length - done > 1 ? 'n' : ''} ${AREAS.length - done})`
+      : 'Tria almenys un àmbit a treballar';
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────
+async function handleSubmit() {
+  const nomInput = document.getElementById('nomInput');
+  const nom = nomInput.value.trim();
+  // Validació nom obligatori
+  if (!nom) {
+    nomInput.classList.add('error');
+    document.getElementById('nomError').style.display = 'block';
+    nomInput.focus();
+    nomInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  nomInput.classList.remove('error');
+  document.getElementById('nomError').style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Enviant…';
+  const allOpts = [...AREAS, ...OBJ_EXTRA];
+  const objectiuText = selObj.map(id => {
+    const opt = allOpts.find(o => o.id === id);
+    return opt ? opt.name : id;
+  }).join(' · ');
+
+  const data = {
+    nom,
+    gramatica:  AREAS[0].levels[sel.gramatica].name,
+    ortografia: AREAS[1].levels[sel.ortografia].name,
+    usllen:     AREAS[2].levels[sel.usllen].name,
+    cooral:     AREAS[3].levels[sel.cooral].name,
+    coescrita:  AREAS[4].levels[sel.coescrita].name,
+    exoral:     AREAS[5].levels[sel.exoral].name,
+    objectiu:   objectiuText
+  };
+
+  // Intenta enviar a Google Sheets (no-cors → no es pot llegir la resposta)
+  if (SCRIPT_URL !== 'AQUI_LA_TEVA_URL_DE_GOOGLE_APPS_SCRIPT') {
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        mode: 'no-cors'
+      });
+    } catch (err) {
+      console.warn('No s\'ha pogut enviar al servidor:', err);
+    }
+  }
+
+  showSuccess(data);
+}
+
+function showSuccess(data) {
+  document.getElementById('formPage').style.display = 'none';
+  document.getElementById('successPage').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const icons = { gramatica:'📝', ortografia:'✏️', usllen:'💬', cooral:'👂', coescrita:'📖', exoral:'🎤' };
+  const noms  = { gramatica:'Gramàtica', ortografia:'Ortografia', usllen:'Ús de la llengua', cooral:'Comprensió oral', coescrita:'Comprensió escrita', exoral:'Expressió oral' };
+
+  let rows = '';
+  AREAS.forEach(a => {
+    rows += `
+      <div class="summary-row">
+        <span class="sr-icon">${icons[a.id]}</span>
+        <span class="sr-name">${noms[a.id]}</span>
+        <span class="sr-val">${data[a.id]}</span>
+      </div>`;
+  });
+  rows += `
+    <div class="summary-row" style="margin-top:8px;padding-top:12px;border-top:2px solid var(--border);border-bottom:none">
+      <span class="sr-icon">🎯</span>
+      <span class="sr-name">Àrea prioritària</span>
+      <span class="sr-val">${data.objectiu}</span>
+    </div>`;
+
+  document.getElementById('summaryBox').innerHTML = `
+    <h3>El teu resum${data.nom !== '—' ? ', ' + data.nom : ''}</h3>
+    ${rows}`;
+}
+
+function resetForm() {
+  Object.keys(sel).forEach(k => delete sel[k]);
+  selObj = [];
+  document.getElementById('successPage').style.display = 'none';
+  document.getElementById('formPage').style.display = 'block';
+  buildForm();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+buildForm();
+updateProgress();
+</script>
